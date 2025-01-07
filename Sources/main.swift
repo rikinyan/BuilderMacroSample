@@ -14,3 +14,4 @@ let book = Book(
 )
 
 print(book.displayedPrice())
+assert(book.displayedPrice() == "¥1,200")
