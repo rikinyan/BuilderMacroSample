@@ -43,43 +43,39 @@ struct BuilderMacro: MemberMacro {
             }
         }
         
-        
-        var initSignature = FunctionParameterListSyntax()
-        nonOptionalvariables.forEach { variable in
-            initSignature.append(FunctionParameterSyntax(stringLiteral: "\(variable.name): \(variable.type)"))
-        }
-        var initBindings = CodeBlockItemListSyntax()
-        nonOptionalvariables.forEach { variable in
-            initBindings.append(CodeBlockItemSyntax(stringLiteral: "self.\(variable.name) = \(variable.name)"))
-        }
-        
-        let initDecl = InitializerDeclSyntax(
-            signature: FunctionSignatureSyntax(parameterClause: FunctionParameterClauseSyntax(parameters: initSignature)),
-            body: CodeBlockSyntax(statements: initBindings)
-        )
-        
-        let setMethodsDecls = optionalVariables.map { setVariable in
-            FunctionDeclSyntax(
-                name: TokenSyntax(stringLiteral: "set\(setVariable.name)"),
-                signature: FunctionSignatureSyntax(parameterClause: FunctionParameterClauseSyntax(parameters: [])),
-                body: CodeBlockSyntax(statements: [CodeBlockItemSyntax(stringLiteral: "self.\(setVariable.name) = \(setVariable.name)")])
-            )
-        }
-    
         var returnList: [DeclSyntax] = []
         
+        let initDecl: DeclSyntax = """
+        init(
+            \(
+        raw: nonOptionalvariables.map { initVariable in
+            "\(initVariable.name): \(initVariable.type)"
+        }.joined(separator: ",")
+            )
+        ) {
+            \(
+        raw: nonOptionalvariables.map { initVariable in
+            "self.\(initVariable.name) = \(initVariable.name)"
+        }.joined(separator: ",")
+            )
+        }
+        """
+        
         returnList.append(initDecl)
-        setMethodsDecls.forEach { returnList.append($0) }
+        
+        optionalVariables.forEach { setVariable in
+            let setMethod: DeclSyntax = "mutating function set\(raw: setVariable.name)(value: \(raw: setVariable.type) { self.\(raw: setVariable.name) = \(raw: setVariable.name) }"
+            
+            returnList.append(setMethod)
+        }
         
         return returnList
     }
-    
     
     struct Variable {
         let name: String
         let type: String
     }
-    
 }
 
 enum CustomError: Error { case message(String) }
