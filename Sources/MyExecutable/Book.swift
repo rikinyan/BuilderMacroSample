@@ -6,15 +6,16 @@
 //
 
 import Foundation
+import BuilderMacro
 
+@Builder
 struct Book {
-    let id: String?
-    let name: String?
-    let authorName: String?
-    let price: Int?
-    let searchKeyWord: [String]
-    let image: URL?
-    let caption: String?
+    var id: String
+    var name: String?
+    var authorName: String?
+    var price: Int?
+    var image: URL?
+    var caption: String?
     
     func displayedPrice() -> String {
         guard let price else { return "this is priceless..." }

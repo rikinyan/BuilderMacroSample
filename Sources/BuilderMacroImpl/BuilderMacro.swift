@@ -21,21 +21,21 @@ public struct BuilderMacro: MemberMacro {
         var nonOptionalvariables: [Variable] = []
 
         declaration.memberBlock.members.forEach { item in
-            guard let variableDecl = item.as(VariableDeclSyntax.self) else { return }
+            guard let variableDecl = item.decl.as(VariableDeclSyntax.self) else { return }
             
             variableDecl.bindings.forEach { binding in
-                guard let identifier = binding.pattern.as(IdentifierTypeSyntax.self) else { return }
+                guard let identifier = binding.pattern.as(IdentifierPatternSyntax.self) else { return }
                 
                 if let optionalType = binding.typeAnnotation?.type.as(OptionalTypeSyntax.self),
                    let wrappedType = optionalType.wrappedType.as(IdentifierTypeSyntax.self) {
                     let variable = Variable(
-                        name: identifier.name.text,
+                        name: identifier.identifier.text,
                         type: wrappedType.name.text
                     )
                     optionalVariables.append(variable)
                 } else if let type = binding.typeAnnotation?.type.as(IdentifierTypeSyntax.self) {
                     let variable = Variable(
-                        name: identifier.name.text,
+                        name: identifier.identifier.text,
                         type: type.name.text
                     )
                     nonOptionalvariables.append(variable)
@@ -64,7 +64,7 @@ public struct BuilderMacro: MemberMacro {
         returnList.append(initDecl)
         
         optionalVariables.forEach { setVariable in
-            let setMethod: DeclSyntax = "mutating function set\(raw: setVariable.name)(value: \(raw: setVariable.type) { self.\(raw: setVariable.name) = \(raw: setVariable.name) }"
+            let setMethod: DeclSyntax = "mutating func set\(raw: setVariable.name)(value: \(raw: setVariable.type)) { self.\(raw: setVariable.name) = value }"
             
             returnList.append(setMethod)
         }
@@ -72,9 +72,10 @@ public struct BuilderMacro: MemberMacro {
         return returnList
     }
     
-    struct Variable {
+    private struct Variable {
         let name: String
         let type: String
+        
     }
 }
 
