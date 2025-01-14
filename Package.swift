@@ -5,7 +5,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "MyExecutable",
+    name: "BuidlerMacroSample",
     platforms: [.macOS(.v15)],
     products: [.executable(name: "MyExecutable", targets: ["MyExecutable"])],
     dependencies: [
