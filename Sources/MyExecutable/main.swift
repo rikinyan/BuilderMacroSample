@@ -3,9 +3,11 @@
 
 import Foundation
 
-let book = Book(
+var book = Book(
     id: "123"
 )
+
+book.setprice(value: 1200)
 
 print(book.displayedPrice())
 assert(book.displayedPrice() == "¥1,200")
